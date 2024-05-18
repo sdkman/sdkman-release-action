@@ -35,4 +35,4 @@ async function main(){
     console.log(response.data)
 }
 
-await main()
+main()
