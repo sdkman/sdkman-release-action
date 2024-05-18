@@ -1,0 +1,32 @@
+name: 'SDKMAN! Release Action'
+author: 'hamzaremmal'
+description: 'Release your sdk to SDKMAN! using GitHub Actions'
+
+inputs:
+  CONSUMER-KEY:
+    description: 'TODO'
+    required: true
+  CONSUMER-TOKEN:
+    description: 'TODO'
+    required: true
+  CANDIDATE:
+    description: 'TODO'
+    required: true
+  VERSION:
+    description: 'TODO'
+    required: true
+  URL:
+    description: 'TODO'
+    required: true
+  BACKEND:
+    description: 'TODO'
+    required: false
+    default: 'https://vendors.sdkman.io'
+
+## TODO: ADD PLATFORM & CHECKSUMS ?
+
+## TODO: ADD THE OUTPUTS ?
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
