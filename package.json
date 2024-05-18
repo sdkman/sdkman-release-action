@@ -4,7 +4,9 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "package": "npx ncc build src/index.js -o dist --source-map --license licenses.md",
+    "bundle": "npm run format:write && npm run package",
+    "format:write": "npx prettier --write .",
+    "package": "npx ncc build src/main.js -o dist --source-map --license licenses.md",
     "package:watch": "npm run package -- --watch"
   },
   "keywords": [],
@@ -22,7 +24,8 @@
   },
   "exports": {
     ".": "./dist/index.js"
-  }, "engines": {
+  },
+  "engines": {
     "node": ">=20"
   }
 }

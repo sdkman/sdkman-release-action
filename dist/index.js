@@ -1,4 +1,4 @@
-/******/ (() => { // webpackBootstrap
+require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 6946:
@@ -37785,45 +37785,44 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(6150);
 const github = __nccwpck_require__(6557);
-const axios = __nccwpck_require__(3988)
+const axios = __nccwpck_require__(3988);
 
+async function main() {
+  const consumer_key = core.getInput("CONSUMER-KEY");
+  const consumer_token = core.getInput("CONSUMER-KEY");
+  const candidate = core.getInput("CANDIDATE");
+  const version = core.getInput("VERSION");
+  const url = core.getInput("URL");
+  const backend = core.getInput("BACKEND");
 
-async function main(){
+  const payload = {
+    candidate: candidate,
+    version: version,
+    url: url,
+  };
 
-    const consumer_key = core.getInput('CONSUMER-KEY')
-    const consumer_token = core.getInput('CONSUMER-KEY')
-    const candidate = core.getInput('CANDIDATE')
-    const version = core.getInput('VERSION')
-    const url = core.getInput('URL')
-    const backend = core.getInput('BACKEND')
+  const query_config = {
+    method: "POST",
+    url: `${backend}/release`,
+    headers: {
+      "Consumer-Key": consumer_key,
+      "Consumer-Token": consumer_token,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    data: payload,
+  };
 
-    const payload = {
-        candidate: candidate,
-        version: version,
-        url: url
-    }
+  const response = await axios(query_config);
 
-    const query_config = {
-        method: 'POST',
-        url: `${backend}/release`,
-        headers: {
-            'Consumer-Key': consumer_key,
-            'Consumer-Token': consumer_token,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        data : payload
-    }
-
-    const response = await axios(query_config)
-
-    console.log(response.data)
+  console.log(response.data);
 }
 
-main()
+main();
 
 })();
 
 module.exports = __webpack_exports__;
 /******/ })()
 ;
+//# sourceMappingURL=index.js.map
