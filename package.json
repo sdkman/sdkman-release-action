@@ -1,0 +1,17 @@
+{
+  "name": "sdkman-release-action",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Hamza Remmal <hamza@remmal.net> (https://remmal.net)",
+  "license": "ISC",
+  "private": true,
+  "homepage": "https://github.com/hamzaremmal/sdkman-release-action",
+  "bugs": {
+    "url": "https://github.com/hamzaremmal/sdkman-release-action/issues/new"
+  }
+}
