@@ -25,7 +25,7 @@ async function main() {
       "Consumer-Key": consumer_key,
       "Consumer-Token": consumer_token,
       "Content-Type": "application/json",
-      "Accept": "application/json",
+      Accept: "application/json",
     },
     data: payload,
   };
