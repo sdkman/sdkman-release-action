@@ -7,12 +7,14 @@ async function main() {
   const consumer_token = core.getInput("CONSUMER-KEY");
   const candidate = core.getInput("CANDIDATE");
   const version = core.getInput("VERSION");
+  const platform = core.getInput("PLATFORM");
   const url = core.getInput("URL");
   const backend = core.getInput("BACKEND");
 
   const payload = {
     candidate: candidate,
     version: version,
+    platform: platform,
     url: url,
   };
 

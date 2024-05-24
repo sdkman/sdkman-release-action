@@ -18,12 +18,17 @@ inputs:
   URL:
     description: "TODO"
     required: true
+  PLATFORM:
+    description: "TODO"
+    required: false
+    default: "UNIVERSAL"
   BACKEND:
     description: "TODO"
     required: false
     default: "https://vendors.sdkman.io"
 
-## TODO: ADD PLATFORM & CHECKSUMS ?
+
+## TODO: ADD CHECKSUMS ?
 
 ## TODO: ADD THE OUTPUTS ?
 
