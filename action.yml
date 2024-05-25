@@ -22,13 +22,28 @@ inputs:
     description: "TODO"
     required: false
     default: "UNIVERSAL"
+  CHECKSUM-MD5:
+    description: "TODO"
+    required: false
+  CHECKSUM-SHA-1:
+    description: "TODO"
+    required: false
+  CHECKSUM-SHA-224:
+    description: "TODO"
+    required: false
+  CHECKSUM-SHA-256:
+    description: "TODO"
+    required: false
+  CHECKSUM-SHA-384:
+    description: "TODO"
+    required: false
+  CHECKSUM-SHA-512:
+    description: "TODO"
+    required: false
   BACKEND:
     description: "TODO"
     required: false
     default: "https://vendors.sdkman.io"
-
-
-## TODO: ADD CHECKSUMS ?
 
 ## TODO: ADD THE OUTPUTS ?
 
