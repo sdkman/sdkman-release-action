@@ -1,7 +1,9 @@
 name: "SDKMAN! Release Action"
 author: "hamzaremmal"
 description: "Release your sdk to SDKMAN! using GitHub Actions"
-
+branding:
+  icon : codepen
+  color: blue
 inputs:
   CONSUMER-KEY:
     description: "TODO"
