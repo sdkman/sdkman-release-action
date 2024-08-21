@@ -2,7 +2,7 @@ name: "SDKMAN! Release Action"
 author: "hamzaremmal"
 description: "Release your sdk to SDKMAN! using GitHub Actions"
 branding:
-  icon : arrow-up-circle
+  icon: arrow-up-circle
   color: blue
 inputs:
   CONSUMER-KEY:
