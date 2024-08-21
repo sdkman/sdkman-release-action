@@ -4,7 +4,7 @@ const axios = require("axios");
 
 async function main() {
   const consumer_key = core.getInput("CONSUMER-KEY");
-  const consumer_token = core.getInput("CONSUMER-KEY");
+  const consumer_token = core.getInput("CONSUMER-TOKEN");
   const candidate = core.getInput("CANDIDATE");
   const version = core.getInput("VERSION");
   const platform = core.getInput("PLATFORM");
