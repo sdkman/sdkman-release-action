@@ -23,7 +23,7 @@
     "axios": "^1.7.4"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.1"
+    "@vercel/ncc": "^0.38.3"
   },
   "exports": {
     ".": "./dist/index.js"
