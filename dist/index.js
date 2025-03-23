@@ -38953,22 +38953,31 @@ const core = __nccwpck_require__(7484);
 const github = __nccwpck_require__(3228);
 const axios = __nccwpck_require__(7269);
 
+// Helper function to get input regardless of case
+function getInput(name) {
+  const upperName = name.toUpperCase();
+  const lowerName = name.toLowerCase();
+
+  // Try both uppercase (for backward compatibility) and lowercase
+  return core.getInput(upperName) || core.getInput(lowerName);
+}
+
 async function main() {
-  const consumer_key = core.getInput("CONSUMER-KEY");
-  const consumer_token = core.getInput("CONSUMER-TOKEN");
-  const candidate = core.getInput("CANDIDATE");
-  const version = core.getInput("VERSION");
-  const platform = core.getInput("PLATFORM");
-  const url = core.getInput("URL");
-  const backend = core.getInput("BACKEND");
+  const consumer_key = getInput("consumer-key");
+  const consumer_token = getInput("consumer-token");
+  const candidate = getInput("candidate");
+  const version = getInput("version");
+  const platform = getInput("platform");
+  const url = getInput("url");
+  const backend = getInput("backend");
 
   // EXTRACT CHECKSUMS INPUTS
-  const checksum_md5 = core.getInput("CHECKSUM-MD5");
-  const checksum_sha1 = core.getInput("CHECKSUM-SHA-1");
-  const checksum_sha224 = core.getInput("CHECKSUM-SHA-224");
-  const checksum_sha256 = core.getInput("CHECKSUM-SHA-256");
-  const checksum_sha384 = core.getInput("CHECKSUM-SHA-384");
-  const checksum_sha512 = core.getInput("CHECKSUM-SHA-512");
+  const checksum_md5 = getInput("checksum-md5");
+  const checksum_sha1 = getInput("checksum-sha-1");
+  const checksum_sha224 = getInput("checksum-sha-224");
+  const checksum_sha256 = getInput("checksum-sha-256");
+  const checksum_sha384 = getInput("checksum-sha-384");
+  const checksum_sha512 = getInput("checksum-sha-512");
 
   const checksum_payload = {};
 

@@ -29,34 +29,34 @@ Add the following step to your GitHub workflow:
 - name: Release to SDKMAN!
   uses: sdkman/sdkman-release-action@v0.1.0
   with:
-    CONSUMER-KEY: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    CONSUMER-TOKEN: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
-    CANDIDATE: your-candidate-name
-    VERSION: 1.0.0
-    URL: https://example.com/path/to/your-candidate-1.0.0.zip
+    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
+    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    candidate: your-candidate-name
+    version: 1.0.0
+    url: https://example.com/path/to/your-candidate-1.0.0.zip
 ```
 
 ## Inputs
 
 | Input              | Description                                     | Required | Default                     |
 | ------------------ | ----------------------------------------------- | -------- | --------------------------- |
-| `CONSUMER-KEY`     | Your SDKMAN! consumer key                       | Yes      | -                           |
-| `CONSUMER-TOKEN`   | Your SDKMAN! consumer token                     | Yes      | -                           |
-| `CANDIDATE`        | The candidate name (e.g., java, scala, kotlin)  | Yes      | -                           |
-| `VERSION`          | The version to release                          | Yes      | -                           |
-| `URL`              | The URL where the binary can be downloaded from | Yes      | -                           |
-| `PLATFORM`         | The platform this binary is for                 | No       | `UNIVERSAL`                 |
-| `CHECKSUM-MD5`     | MD5 checksum of the binary                      | No       | -                           |
-| `CHECKSUM-SHA-1`   | SHA-1 checksum of the binary                    | No       | -                           |
-| `CHECKSUM-SHA-224` | SHA-224 checksum of the binary                  | No       | -                           |
-| `CHECKSUM-SHA-256` | SHA-256 checksum of the binary                  | No       | -                           |
-| `CHECKSUM-SHA-384` | SHA-384 checksum of the binary                  | No       | -                           |
-| `CHECKSUM-SHA-512` | SHA-512 checksum of the binary                  | No       | -                           |
-| `BACKEND`          | The SDKMAN! vendor API endpoint                 | No       | `https://vendors.sdkman.io` |
+| `consumer-key`     | Your SDKMAN! consumer key                       | Yes      | -                           |
+| `consumer-token`   | Your SDKMAN! consumer token                     | Yes      | -                           |
+| `candidate`        | The candidate name (e.g., java, scala, kotlin)  | Yes      | -                           |
+| `version`          | The version to release                          | Yes      | -                           |
+| `url`              | The URL where the binary can be downloaded from | Yes      | -                           |
+| `platform`         | The platform this binary is for                 | No       | `UNIVERSAL`                 |
+| `checksum-md5`     | MD5 checksum of the binary                      | No       | -                           |
+| `checksum-sha-1`   | SHA-1 checksum of the binary                    | No       | -                           |
+| `checksum-sha-224` | SHA-224 checksum of the binary                  | No       | -                           |
+| `checksum-sha-256` | SHA-256 checksum of the binary                  | No       | -                           |
+| `checksum-sha-384` | SHA-384 checksum of the binary                  | No       | -                           |
+| `checksum-sha-512` | SHA-512 checksum of the binary                  | No       | -                           |
+| `backend`          | The SDKMAN! vendor API endpoint                 | No       | `https://vendors.sdkman.io` |
 
 ## Platform Values
 
-The `PLATFORM` input can be one of the following values:
+The `platform` input can be one of the following values:
 
 - `UNIVERSAL` (default): Platform-independent distribution
 - `LINUX_64`
@@ -76,11 +76,11 @@ The `PLATFORM` input can be one of the following values:
 - name: Release to SDKMAN!
   uses: sdkman/sdkman-release-action@v0.1.0
   with:
-    CONSUMER-KEY: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    CONSUMER-TOKEN: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
-    CANDIDATE: my-tool
-    VERSION: ${{ github.event.release.tag_name }}
-    URL: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
+    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
+    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    candidate: my-tool
+    version: ${{ github.event.release.tag_name }}
+    url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
 ```
 
 ### With Checksums
@@ -89,13 +89,13 @@ The `PLATFORM` input can be one of the following values:
 - name: Release to SDKMAN! with checksums
   uses: sdkman/sdkman-release-action@v0.1.0
   with:
-    CONSUMER-KEY: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    CONSUMER-TOKEN: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
-    CANDIDATE: my-tool
-    VERSION: ${{ github.event.release.tag_name }}
-    URL: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
-    CHECKSUM-MD5: ${{ env.MD5 }}
-    CHECKSUM-SHA-256: ${{ env.SHA256 }}
+    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
+    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    candidate: my-tool
+    version: ${{ github.event.release.tag_name }}
+    url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
+    checksum-md5: ${{ env.MD5 }}
+    checksum-sha-256: ${{ env.SHA256 }}
 ```
 
 ### Platform-Specific Release
@@ -104,12 +104,12 @@ The `PLATFORM` input can be one of the following values:
 - name: Release platform-specific version to SDKMAN!
   uses: sdkman/sdkman-release-action@v0.1.0
   with:
-    CONSUMER-KEY: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    CONSUMER-TOKEN: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
-    CANDIDATE: my-tool
-    VERSION: ${{ github.event.release.tag_name }}
-    URL: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-linux-x64-${{ github.event.release.tag_name }}.zip
-    PLATFORM: LINUX_64
+    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
+    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    candidate: my-tool
+    version: ${{ github.event.release.tag_name }}
+    url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-linux-x64-${{ github.event.release.tag_name }}.zip
+    platform: LINUX_64
 ```
 
 ## License
