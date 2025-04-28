@@ -3,21 +3,21 @@ const github = require("@actions/github");
 const axios = require("axios");
 
 async function main() {
-  const consumer_key = core.getInput("CONSUMER-KEY");
-  const consumer_token = core.getInput("CONSUMER-TOKEN");
-  const candidate = core.getInput("CANDIDATE");
-  const version = core.getInput("VERSION");
-  const platform = core.getInput("PLATFORM");
-  const url = core.getInput("URL");
-  const backend = core.getInput("BACKEND");
+  const consumer_key = core.getInput("consumer-key");
+  const consumer_token = core.getInput("consumer-token");
+  const candidate = core.getInput("candidate");
+  const version = core.getInput("version");
+  const platform = core.getInput("platform");
+  const url = core.getInput("url");
+  const backend = core.getInput("backend");
 
   // EXTRACT CHECKSUMS INPUTS
-  const checksum_md5 = core.getInput("CHECKSUM-MD5");
-  const checksum_sha1 = core.getInput("CHECKSUM-SHA-1");
-  const checksum_sha224 = core.getInput("CHECKSUM-SHA-224");
-  const checksum_sha256 = core.getInput("CHECKSUM-SHA-256");
-  const checksum_sha384 = core.getInput("CHECKSUM-SHA-384");
-  const checksum_sha512 = core.getInput("CHECKSUM-SHA-512");
+  const checksum_md5 = core.getInput("checksum-md5");
+  const checksum_sha1 = core.getInput("checksum-sha-1");
+  const checksum_sha224 = core.getInput("checksum-sha-224");
+  const checksum_sha256 = core.getInput("checksum-sha-256");
+  const checksum_sha384 = core.getInput("checksum-sha-384");
+  const checksum_sha512 = core.getInput("checksum-sha-512");
 
   const checksum_payload = {};
 
