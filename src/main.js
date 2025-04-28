@@ -2,31 +2,22 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const axios = require("axios");
 
-// Helper function to get input regardless of case
-function getInput(name) {
-  const upperName = name.toUpperCase();
-  const lowerName = name.toLowerCase();
-
-  // Try both uppercase (for backward compatibility) and lowercase
-  return core.getInput(upperName) || core.getInput(lowerName);
-}
-
 async function main() {
-  const consumer_key = getInput("consumer-key");
-  const consumer_token = getInput("consumer-token");
-  const candidate = getInput("candidate");
-  const version = getInput("version");
-  const platform = getInput("platform");
-  const url = getInput("url");
-  const backend = getInput("backend");
+  const consumer_key = core.getInput("consumer-key");
+  const consumer_token = core.getInput("consumer-token");
+  const candidate = core.getInput("candidate");
+  const version = core.getInput("version");
+  const platform = core.getInput("platform");
+  const url = core.getInput("url");
+  const backend = core.getInput("backend");
 
   // EXTRACT CHECKSUMS INPUTS
-  const checksum_md5 = getInput("checksum-md5");
-  const checksum_sha1 = getInput("checksum-sha-1");
-  const checksum_sha224 = getInput("checksum-sha-224");
-  const checksum_sha256 = getInput("checksum-sha-256");
-  const checksum_sha384 = getInput("checksum-sha-384");
-  const checksum_sha512 = getInput("checksum-sha-512");
+  const checksum_md5 = core.getInput("checksum-md5");
+  const checksum_sha1 = core.getInput("checksum-sha-1");
+  const checksum_sha224 = core.getInput("checksum-sha-224");
+  const checksum_sha256 = core.getInput("checksum-sha-256");
+  const checksum_sha384 = core.getInput("checksum-sha-384");
+  const checksum_sha512 = core.getInput("checksum-sha-512");
 
   const checksum_payload = {};
 
