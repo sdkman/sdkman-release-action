@@ -5,50 +5,6 @@ branding:
   icon: arrow-up-circle
   color: blue
 inputs:
-  # Uppercase inputs maintained for backward compatibility
-  CONSUMER-KEY:
-    description: "SDKMAN! consumer key (uppercase, deprecated)"
-    required: false
-  CONSUMER-TOKEN:
-    description: "SDKMAN! consumer token (uppercase, deprecated)"
-    required: false
-  CANDIDATE:
-    description: "Candidate name (uppercase, deprecated)"
-    required: false
-  VERSION:
-    description: "Version to release (uppercase, deprecated)"
-    required: false
-  URL:
-    description: "Download URL (uppercase, deprecated)"
-    required: false
-  PLATFORM:
-    description: "Platform identifier (uppercase, deprecated)"
-    required: false
-    default: "UNIVERSAL"
-  CHECKSUM-MD5:
-    description: "MD5 checksum (uppercase, deprecated)"
-    required: false
-  CHECKSUM-SHA-1:
-    description: "SHA-1 checksum (uppercase, deprecated)"
-    required: false
-  CHECKSUM-SHA-224:
-    description: "SHA-224 checksum (uppercase, deprecated)"
-    required: false
-  CHECKSUM-SHA-256:
-    description: "SHA-256 checksum (uppercase, deprecated)"
-    required: false
-  CHECKSUM-SHA-384:
-    description: "SHA-384 checksum (uppercase, deprecated)"
-    required: false
-  CHECKSUM-SHA-512:
-    description: "SHA-512 checksum (uppercase, deprecated)"
-    required: false
-  BACKEND:
-    description: "Backend URL (uppercase, deprecated)"
-    required: false
-    default: "https://vendors.sdkman.io"
-
-  # Lowercase inputs (preferred)
   consumer-key:
     description: "SDKMAN! consumer key"
     required: true
