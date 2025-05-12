@@ -38,21 +38,21 @@ Add the following step to your GitHub workflow:
 
 ## Inputs
 
-| Input | Description | Required | Default |
-|-------|-------------|----------|---------|
-| `CONSUMER-KEY` | Your SDKMAN! consumer key | Yes | - |
-| `CONSUMER-TOKEN` | Your SDKMAN! consumer token | Yes | - |
-| `CANDIDATE` | The candidate name (e.g., java, scala, kotlin) | Yes | - |
-| `VERSION` | The version to release | Yes | - |
-| `URL` | The URL where the binary can be downloaded from | Yes | - |
-| `PLATFORM` | The platform this binary is for | No | `UNIVERSAL` |
-| `CHECKSUM-MD5` | MD5 checksum of the binary | No | - |
-| `CHECKSUM-SHA-1` | SHA-1 checksum of the binary | No | - |
-| `CHECKSUM-SHA-224` | SHA-224 checksum of the binary | No | - |
-| `CHECKSUM-SHA-256` | SHA-256 checksum of the binary | No | - |
-| `CHECKSUM-SHA-384` | SHA-384 checksum of the binary | No | - |
-| `CHECKSUM-SHA-512` | SHA-512 checksum of the binary | No | - |
-| `BACKEND` | The SDKMAN! vendor API endpoint | No | `https://vendors.sdkman.io` |
+| Input              | Description                                     | Required | Default                     |
+| ------------------ | ----------------------------------------------- | -------- | --------------------------- |
+| `CONSUMER-KEY`     | Your SDKMAN! consumer key                       | Yes      | -                           |
+| `CONSUMER-TOKEN`   | Your SDKMAN! consumer token                     | Yes      | -                           |
+| `CANDIDATE`        | The candidate name (e.g., java, scala, kotlin)  | Yes      | -                           |
+| `VERSION`          | The version to release                          | Yes      | -                           |
+| `URL`              | The URL where the binary can be downloaded from | Yes      | -                           |
+| `PLATFORM`         | The platform this binary is for                 | No       | `UNIVERSAL`                 |
+| `CHECKSUM-MD5`     | MD5 checksum of the binary                      | No       | -                           |
+| `CHECKSUM-SHA-1`   | SHA-1 checksum of the binary                    | No       | -                           |
+| `CHECKSUM-SHA-224` | SHA-224 checksum of the binary                  | No       | -                           |
+| `CHECKSUM-SHA-256` | SHA-256 checksum of the binary                  | No       | -                           |
+| `CHECKSUM-SHA-384` | SHA-384 checksum of the binary                  | No       | -                           |
+| `CHECKSUM-SHA-512` | SHA-512 checksum of the binary                  | No       | -                           |
+| `BACKEND`          | The SDKMAN! vendor API endpoint                 | No       | `https://vendors.sdkman.io` |
 
 ## Platform Values
 
