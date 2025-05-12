@@ -5,45 +5,45 @@ branding:
   icon: arrow-up-circle
   color: blue
 inputs:
-  CONSUMER-KEY:
-    description: "TODO"
+  consumer-key:
+    description: "SDKMAN! consumer key"
     required: true
-  CONSUMER-TOKEN:
-    description: "TODO"
+  consumer-token:
+    description: "SDKMAN! consumer token"
     required: true
-  CANDIDATE:
-    description: "TODO"
+  candidate:
+    description: "Candidate name"
     required: true
-  VERSION:
-    description: "TODO"
+  version:
+    description: "Version to release"
     required: true
-  URL:
-    description: "TODO"
+  url:
+    description: "Download URL"
     required: true
-  PLATFORM:
-    description: "TODO"
+  platform:
+    description: "Platform identifier"
     required: false
     default: "UNIVERSAL"
-  CHECKSUM-MD5:
-    description: "TODO"
+  checksum-md5:
+    description: "MD5 checksum"
     required: false
-  CHECKSUM-SHA-1:
-    description: "TODO"
+  checksum-sha-1:
+    description: "SHA-1 checksum"
     required: false
-  CHECKSUM-SHA-224:
-    description: "TODO"
+  checksum-sha-224:
+    description: "SHA-224 checksum"
     required: false
-  CHECKSUM-SHA-256:
-    description: "TODO"
+  checksum-sha-256:
+    description: "SHA-256 checksum"
     required: false
-  CHECKSUM-SHA-384:
-    description: "TODO"
+  checksum-sha-384:
+    description: "SHA-384 checksum"
     required: false
-  CHECKSUM-SHA-512:
-    description: "TODO"
+  checksum-sha-512:
+    description: "SHA-512 checksum"
     required: false
-  BACKEND:
-    description: "TODO"
+  backend:
+    description: "Backend URL"
     required: false
     default: "https://vendors.sdkman.io"
 
