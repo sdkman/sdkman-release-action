@@ -20,7 +20,7 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
-    "axios": "^1.9.0"
+    "axios": "^1.13.6"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.4"
