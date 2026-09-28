@@ -83,4 +83,85 @@ async function login({ fetch, sleep, info, backend, email, password }) {
   throw new Error(formatFailure("Login", response.status, body));
 }
 
-module.exports = { formatFailure, login };
+/** Longest raw body quoted in a `400` message without `failures[]` or `message`. */
+const RAW_BODY_LIMIT = 500;
+
+/**
+ * Builds the message for a `/versions` `400`, listing each field failure.
+ *
+ * @param {import("./http").Body} body the parsed response body
+ * @returns {string}
+ */
+function formatRejection(body) {
+  const heading = "Release rejected by sdkman-state:";
+  const failures = body.json?.failures;
+  if (Array.isArray(failures) && failures.length > 0) {
+    const lines = failures.map(
+      (failure) => `- ${failure?.field}: ${failure?.message}`,
+    );
+    return [heading, ...lines].join("\n");
+  }
+  const message = body.json?.message;
+  if (typeof message === "string" && message !== "") {
+    return `${heading} ${message}`;
+  }
+  const raw = body.text.slice(0, RAW_BODY_LIMIT);
+  return raw ? `${heading} HTTP 400 ${raw}` : `${heading} HTTP 400`;
+}
+
+/**
+ * Publishes a version to sdkman-state.
+ *
+ * @param {object} options
+ * @param {typeof globalThis.fetch} options.fetch
+ * @param {(ms: number) => Promise<void>} options.sleep injected so tests do not wait
+ * @param {(message: string) => void} options.info logs each retry
+ * @param {string} options.backend base URL without a trailing slash
+ * @param {string} options.token the bearer token from `login`
+ * @param {{ candidate: string } & Record<string, unknown>} options.payload the `/versions` request body
+ * @param {string} options.email the vendor, named when not authorised
+ * @returns {Promise<void>}
+ */
+async function publish({ fetch, sleep, info, backend, token, payload, email }) {
+  /** @type {Response} */
+  let response;
+  try {
+    response = await withRetry(
+      () =>
+        fetch(`${backend}/versions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+          // A redirect is a failure, and following it could replay the
+          // token to another host.
+          redirect: "manual",
+        }),
+      { sleep, info, label: "Publish" },
+    );
+  } catch (error) {
+    throw new Error(`Publish failed: ${describeError(error)}`);
+  }
+
+  if (response.status === 204) return;
+
+  const body = await readBody(response);
+  if (response.status === 400) {
+    throw new Error(formatRejection(body));
+  }
+  if (response.status === 401) {
+    throw new Error(
+      "Token rejected by sdkman-state (unexpected immediately after login).",
+    );
+  }
+  if (response.status === 403) {
+    throw new Error(
+      `Vendor ${email} is not authorised to publish ${payload.candidate}.`,
+    );
+  }
+  throw new Error(formatFailure("Publish", response.status, body));
+}
+
+module.exports = { formatFailure, login, publish };
