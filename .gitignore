@@ -169,7 +169,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
@@ -209,3 +208,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+IMPLEMENTATION_PLAN.md
+PROGRESS.md
+.ralph/
+PROMPT_plan.md
+PROMPT_build.md
+PROMPT_review.md

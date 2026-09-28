@@ -15,11 +15,13 @@ This GitHub Action simplifies the process of releasing new candidate versions to
 
 ## Prerequisites
 
-Before using this action, you need to:
+This action publishes to **sdkman-state** (`https://state.sdkman.io`), the SDKMAN! service that holds candidate version state. Before using it, you need:
 
-1. Complete the [SDKMAN! Vendor Onboarding Process](https://github.com/sdkman/sdkman-cli/wiki/Vendor-onboarding-process)
-2. Obtain your Consumer Key and Consumer Token from the SDKMAN! team
-3. Have your release artifacts publicly accessible via URL
+1. An sdkman-state vendor account (email and password), issued by the SDKMAN! team. See the [SDKMAN! Vendor Onboarding Process](https://github.com/sdkman/sdkman-cli/wiki/Vendor-onboarding-process).
+2. Your candidate registered in sdkman-state and authorised for your vendor account.
+3. Your release artifacts publicly accessible via an `https://` URL.
+
+Store the account credentials as repository secrets, for example `SDKMAN_EMAIL` and `SDKMAN_PASSWORD`.
 
 ## Usage
 
@@ -27,46 +29,60 @@ Add the following step to your GitHub workflow:
 
 ```yaml
 - name: Release to SDKMAN!
-  uses: sdkman/sdkman-release-action@v0.1.0
+  uses: sdkman/sdkman-release-action@v1
   with:
-    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    email: ${{ secrets.SDKMAN_EMAIL }}
+    password: ${{ secrets.SDKMAN_PASSWORD }}
     candidate: your-candidate-name
     version: 1.0.0
     url: https://example.com/path/to/your-candidate-1.0.0.zip
 ```
 
+The action logs in to sdkman-state, then publishes the version. The step fails with a descriptive message on any unsuccessful login or publish.
+
+Publishing is an upsert on candidate, version and platform: re-running a job for the same release overwrites its URL, checksums and visibility instead of failing.
+
 ## Inputs
 
-| Input              | Description                                     | Required | Default                     |
-| ------------------ | ----------------------------------------------- | -------- | --------------------------- |
-| `consumer-key`     | Your SDKMAN! consumer key                       | Yes      | -                           |
-| `consumer-token`   | Your SDKMAN! consumer token                     | Yes      | -                           |
-| `candidate`        | The candidate name (e.g., java, scala, kotlin)  | Yes      | -                           |
-| `version`          | The version to release                          | Yes      | -                           |
-| `url`              | The URL where the binary can be downloaded from | Yes      | -                           |
-| `platform`         | The platform this binary is for                 | No       | `UNIVERSAL`                 |
-| `checksum-md5`     | MD5 checksum of the binary                      | No       | -                           |
-| `checksum-sha-1`   | SHA-1 checksum of the binary                    | No       | -                           |
-| `checksum-sha-224` | SHA-224 checksum of the binary                  | No       | -                           |
-| `checksum-sha-256` | SHA-256 checksum of the binary                  | No       | -                           |
-| `checksum-sha-384` | SHA-384 checksum of the binary                  | No       | -                           |
-| `checksum-sha-512` | SHA-512 checksum of the binary                  | No       | -                           |
-| `backend`          | The SDKMAN! vendor API endpoint                 | No       | `https://vendors.sdkman.io` |
+| Input              | Required | Default                   | Notes                                                                    |
+| ------------------ | -------- | ------------------------- | ------------------------------------------------------------------------ |
+| `email`            | yes      |                           | sdkman-state vendor account email                                        |
+| `password`         | yes      |                           | sdkman-state vendor account password; masked in logs                     |
+| `candidate`        | yes      |                           | Must already be registered in sdkman-state and authorised for the vendor |
+| `version`          | yes      |                           |                                                                          |
+| `url`              | yes      |                           | Download URL; the API requires `https://`                                |
+| `platform`         | no       | `UNIVERSAL`               | One of the [supported platforms](#platforms)                             |
+| `checksum-md5`     | no       |                           | Hex, 32 chars                                                            |
+| `checksum-sha-256` | no       |                           | Hex, 64 chars                                                            |
+| `checksum-sha-512` | no       |                           | Hex, 128 chars                                                           |
+| `tags`             | no       |                           | Comma- and/or newline-separated list, e.g. `lts` or `latest, 3.x`        |
+| `visible`          | no       | `true`                    | `true` / `false`                                                         |
+| `backend`          | no       | `https://state.sdkman.io` | Trailing `/` is stripped. `http://` is permitted (local testing)         |
 
-## Platform Values
+## Platforms
 
-The `platform` input can be one of the following values:
+The `platform` input accepts sdkman-state's platform identifiers only, matched exactly (case-sensitive):
 
-- `UNIVERSAL` (default): Platform-independent distribution
-- `LINUX_64`
-- `LINUX_32`
+- `UNIVERSAL` (default): platform-independent distribution
+- `LINUX_X64`
+- `LINUX_X32`
 - `LINUX_ARM64`
-- `LINUX_ARM32`
-- `MAC_OSX`
+- `LINUX_ARM32HF`
+- `LINUX_ARM32SF`
+- `MAC_X64`
 - `MAC_ARM64`
-- `WINDOWS_64`
-- `WINDOWS_32`
+- `WINDOWS_X64`
+
+The v0 identifiers are not translated. See the [platform mapping](#migrating-from-v0) if you are upgrading.
+
+## Tags and visibility
+
+`tags` assigns tags to the version. Separate tags with commas, newlines or both. Surrounding whitespace and empty entries are ignored.
+
+- The `lts` tag makes the version the candidate's default version.
+- Sending tags **replaces** the version's whole tag set. When `tags` is empty or not set, the action sends no tags, so tags assigned by other means stay in place.
+
+`visible` controls whether users can see the version. Set it to `false` to publish a hidden version. When `visible` is not set, sdkman-state applies its default (`true`).
 
 ## Example Workflows
 
@@ -74,10 +90,10 @@ The `platform` input can be one of the following values:
 
 ```yaml
 - name: Release to SDKMAN!
-  uses: sdkman/sdkman-release-action@v0.1.0
+  uses: sdkman/sdkman-release-action@v1
   with:
-    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    email: ${{ secrets.SDKMAN_EMAIL }}
+    password: ${{ secrets.SDKMAN_PASSWORD }}
     candidate: my-tool
     version: ${{ github.event.release.tag_name }}
     url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
@@ -87,10 +103,10 @@ The `platform` input can be one of the following values:
 
 ```yaml
 - name: Release to SDKMAN! with checksums
-  uses: sdkman/sdkman-release-action@v0.1.0
+  uses: sdkman/sdkman-release-action@v1
   with:
-    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    email: ${{ secrets.SDKMAN_EMAIL }}
+    password: ${{ secrets.SDKMAN_PASSWORD }}
     candidate: my-tool
     version: ${{ github.event.release.tag_name }}
     url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
@@ -102,15 +118,82 @@ The `platform` input can be one of the following values:
 
 ```yaml
 - name: Release platform-specific version to SDKMAN!
-  uses: sdkman/sdkman-release-action@v0.1.0
+  uses: sdkman/sdkman-release-action@v1
   with:
-    consumer-key: ${{ secrets.SDKMAN_CONSUMER_KEY }}
-    consumer-token: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+    email: ${{ secrets.SDKMAN_EMAIL }}
+    password: ${{ secrets.SDKMAN_PASSWORD }}
     candidate: my-tool
     version: ${{ github.event.release.tag_name }}
     url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-linux-x64-${{ github.event.release.tag_name }}.zip
-    platform: LINUX_64
+    platform: LINUX_X64
 ```
+
+### Tagged Default Version
+
+```yaml
+- name: Release to SDKMAN! as the default version
+  uses: sdkman/sdkman-release-action@v1
+  with:
+    email: ${{ secrets.SDKMAN_EMAIL }}
+    password: ${{ secrets.SDKMAN_PASSWORD }}
+    candidate: my-tool
+    version: ${{ github.event.release.tag_name }}
+    url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
+    tags: |
+      lts
+      latest
+```
+
+## Migrating from v0
+
+v1 publishes to sdkman-state instead of the legacy Vendor API. Workflows written for v0 fail on v1 until you update them.
+
+### Not ready to migrate?
+
+v0 keeps publishing to the legacy Vendor API for as long as that API exists. Pin the floating `v0` tag to stay on it:
+
+```yaml
+uses: sdkman/sdkman-release-action@v0
+```
+
+### Credentials
+
+v1 authenticates with an sdkman-state vendor account `email` and `password` instead of `consumer-key` and `consumer-token`. Ask the SDKMAN! team for an account, store it as the `SDKMAN_EMAIL` and `SDKMAN_PASSWORD` secrets, then replace the two legacy inputs:
+
+```yaml
+email: ${{ secrets.SDKMAN_EMAIL }}
+password: ${{ secrets.SDKMAN_PASSWORD }}
+```
+
+The step fails if `consumer-key` or `consumer-token` is still set.
+
+### Platforms
+
+sdkman-state uses different platform identifiers. v1 does not translate the v0 identifiers, so update the `platform` input:
+
+| v0 (legacy)   | v1 (sdkman-state)                  |
+| ------------- | ---------------------------------- |
+| `UNIVERSAL`   | `UNIVERSAL`                        |
+| `LINUX_64`    | `LINUX_X64`                        |
+| `LINUX_32`    | `LINUX_X32`                        |
+| `LINUX_ARM64` | `LINUX_ARM64`                      |
+| `LINUX_ARM32` | `LINUX_ARM32HF` or `LINUX_ARM32SF` |
+| `MAC_OSX`     | `MAC_X64`                          |
+| `MAC_ARM64`   | `MAC_ARM64`                        |
+| `WINDOWS_64`  | `WINDOWS_X64`                      |
+| `WINDOWS_32`  | _(not supported)_                  |
+
+### Removed checksum algorithms
+
+sdkman-state supports MD5, SHA-256 and SHA-512 only. Remove `checksum-sha-1`, `checksum-sha-224` and `checksum-sha-384`, and use `checksum-md5`, `checksum-sha-256` or `checksum-sha-512` instead. The step fails if a removed checksum input is set.
+
+### Download URLs
+
+sdkman-state requires the `url` to use `https://`. An `http://` download URL is rejected.
+
+### Failures
+
+v1 fails the step on any unsuccessful publish, including responses that v0 let through. A failed login, a rejected release or an unauthorised candidate now stops the workflow with a descriptive message.
 
 ## License
 
