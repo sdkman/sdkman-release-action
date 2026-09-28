@@ -1,4 +1,4 @@
-const { checkLegacyInputs } = require("../src/inputs");
+const { checkLegacyInputs, readInputs, PLATFORMS } = require("../src/inputs");
 
 // Distinctive values so a leak into the message is easy to detect.
 const LEGACY = {
@@ -100,5 +100,141 @@ describe("checkLegacyInputs", () => {
     expect(message).not.toContain("consumer-token");
     expect(message).not.toContain("checksum-sha-1:");
     expect(message).not.toContain("checksum-sha-224");
+  });
+});
+
+// The smallest input set that passes validation.
+const REQUIRED = {
+  email: "vendor@example.com",
+  password: "s3cret-password",
+  candidate: "gradle",
+  version: "9.1.0",
+  url: "https://example.com/gradle-9.1.0-bin.zip",
+};
+
+function readFailure(inputs) {
+  expect(() => readInputs(stubCore(inputs))).toThrow(Error);
+  try {
+    readInputs(stubCore(inputs));
+  } catch (e) {
+    return e.message;
+  }
+}
+
+describe("readInputs", () => {
+  it("returns every v1 input keyed by name", () => {
+    const inputs = {
+      ...REQUIRED,
+      platform: "LINUX_X64",
+      "checksum-md5": "md5",
+      "checksum-sha-256": "sha256",
+      "checksum-sha-512": "sha512",
+      tags: "lts, 3.x",
+      visible: "false",
+      backend: "http://localhost:8080",
+    };
+
+    expect(readInputs(stubCore(inputs))).toEqual(inputs);
+  });
+
+  it.each(["email", "password", "candidate", "version", "url"])(
+    "rejects a missing %s",
+    (name) => {
+      const message = readFailure({ ...REQUIRED, [name]: "" });
+
+      expect(message).toBe(`Missing required inputs: ${name}`);
+    },
+  );
+
+  it("rejects a whitespace-only required input", () => {
+    const message = readFailure({ ...REQUIRED, version: "  \n " });
+
+    expect(message).toBe("Missing required inputs: version");
+  });
+
+  it("names every missing required input together", () => {
+    const message = readFailure({});
+
+    expect(message).toBe(
+      "Missing required inputs: email, password, candidate, version, url",
+    );
+  });
+
+  // The password must not leak even when another input is invalid.
+  it("never echoes the password", () => {
+    const message = readFailure({ ...REQUIRED, candidate: "" });
+
+    expect(message).not.toContain(REQUIRED.password);
+  });
+
+  it("lists the nine sdkman-state platforms", () => {
+    expect(PLATFORMS).toEqual([
+      "UNIVERSAL",
+      "LINUX_X64",
+      "LINUX_X32",
+      "LINUX_ARM64",
+      "LINUX_ARM32HF",
+      "LINUX_ARM32SF",
+      "MAC_X64",
+      "MAC_ARM64",
+      "WINDOWS_X64",
+    ]);
+  });
+
+  it.each(PLATFORMS)("accepts platform %s", (platform) => {
+    expect(readInputs(stubCore({ ...REQUIRED, platform })).platform).toBe(
+      platform,
+    );
+  });
+
+  it.each(["LINUX_64", "MAC_OSX", "linux_x64", "WINDOWS_32"])(
+    "rejects platform %s with the valid values and mapping link",
+    (platform) => {
+      const message = readFailure({ ...REQUIRED, platform });
+
+      expect(message).toContain(`Invalid platform "${platform}"`);
+      expect(message).toContain(PLATFORMS.join(", "));
+      expect(message).toContain(
+        "https://github.com/sdkman/sdkman-release-action#migrating-from-v0",
+      );
+    },
+  );
+
+  it("defaults a blank platform and backend", () => {
+    const inputs = readInputs(stubCore(REQUIRED));
+
+    expect(inputs.platform).toBe("UNIVERSAL");
+    expect(inputs.backend).toBe("https://state.sdkman.io");
+  });
+
+  it.each([
+    ["true", "true"],
+    ["false", "false"],
+    ["FALSE", "false"],
+    ["True", "true"],
+    ["", ""],
+  ])("accepts visible %j as %j", (visible, expected) => {
+    expect(readInputs(stubCore({ ...REQUIRED, visible })).visible).toBe(
+      expected,
+    );
+  });
+
+  it.each(["yes", "0", "hidden"])("rejects visible %j", (visible) => {
+    const message = readFailure({ ...REQUIRED, visible });
+
+    expect(message).toBe(
+      `Invalid visible "${visible}"; expected true or false`,
+    );
+  });
+
+  it.each([
+    ["https://state.sdkman.io/", "https://state.sdkman.io"],
+    ["http://localhost:8080/", "http://localhost:8080"],
+    ["http://localhost:8080//", "http://localhost:8080/"],
+    ["http://localhost:8080", "http://localhost:8080"],
+  ])("strips one trailing slash from backend %s", (backend, expected) => {
+    expect(readInputs(stubCore({ ...REQUIRED, backend })).backend).toBe(
+      expected,
+    );
   });
 });
