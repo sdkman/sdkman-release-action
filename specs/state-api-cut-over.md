@@ -192,6 +192,16 @@ Retry delays are injectable so tests do not sleep.
 - Pure helpers (input parsing, payload building, error formatting, retry) in small modules under `src/`, each unit-tested.
 - Plain JavaScript (CommonJS) with JSDoc types and `// @ts-check`.
 
+### Assumptions
+
+Decisions taken during planning where this spec was silent:
+
+- `<call>` in error messages is `Login` for `/login` and `Publish` for `/versions`, e.g. `Publish failed: HTTP 502 Bad gateway`.
+- Helper modules are `src/retry.js` (`withRetry`, `parseRetryAfter`), `src/http.js` (`readBody`), `src/client.js` (`login`, `publish`), `src/inputs.js` (`checkLegacyInputs`, `readInputs`, `PLATFORMS`) and `src/payload.js` (`parseTags`, `buildPayload`).
+- Tests live in `__tests__/` as `*.test.js`. A Jest setup file `__tests__/setup.js` calls `nock.disableNetConnect()`.
+- `.node-version` is `24.21.0`, the Node 24 LTS at planning time.
+- A `/login` `200` whose body has no non-empty `token` string fails with `Login failed: response has no token`, rather than proceeding to publish with an invalid bearer token.
+
 ### Dependencies
 
 - Remove `axios` and the unused `@actions/github`.
