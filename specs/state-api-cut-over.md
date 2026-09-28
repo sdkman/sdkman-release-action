@@ -2,13 +2,13 @@
 
 The action currently publishes releases by POSTing to the legacy Vendor API (`https://vendors.sdkman.io/release`) using `Consumer-Key` / `Consumer-Token` headers. SDKMAN! is moving version state to the new **sdkman-state** service (`https://state.sdkman.io`), which has a different authentication model, endpoint, platform vocabulary and payload shape.
 
-This change makes v1 of the action publish exclusively to sdkman-state. It is a hard cut-over: the legacy code path is removed. Existing users are unaffected until they upgrade, because `@v0.1.0` continues to target the legacy API for as long as it exists.
+This change makes v1 of the action publish exclusively to sdkman-state. It is a hard cut-over: the legacy code path is removed. Existing users pinned to a v0.x release (latest `v0.2.0`) are unaffected until they upgrade, because v0.x continues to target the legacy API for as long as it exists.
 
 ## Goals
 
 - Publish a candidate version to sdkman-state from a GitHub workflow.
 - Give users upgrading from v0 an explicit, actionable failure instead of silent behaviour changes.
-- Fail the workflow step on every unsuccessful publish (the current action does not).
+- Fail with a descriptive `core.setFailed` message instead of an unhandled-rejection stack trace, and fail on every non-success outcome including ones the current code lets through.
 - Introduce a test suite and CI for the action's logic.
 - Move to the Node 24 Actions runtime.
 
@@ -20,11 +20,15 @@ This change makes v1 of the action publish exclusively to sdkman-state. It is a 
 - Declaring action outputs.
 - Converting to TypeScript.
 
+## Source of truth
+
+All statements about sdkman-state in this spec — endpoints, status codes, token lifetime, upsert key, tag-replace semantics, platform vocabulary, `failures[]` shape and authorisation — were verified against its [OpenAPI document](https://state.sdkman.io/openapi/documentation.yaml) (`src/main/resources/openapi/documentation.yaml` in sdkman-state) at commit `9f9082d`. This includes `500 Candidate registry unavailable` from `POST /versions`, which is treated as a retried `5xx`.
+
 ## Behaviour
 
 A single run performs the following steps in order. Any failure calls `core.setFailed` with a descriptive message and stops the run; no further requests are made.
 
-1. **Reject legacy inputs.** If any of `consumer-key`, `consumer-token`, `checksum-sha-1`, `checksum-sha-224` or `checksum-sha-384` is non-empty, fail (see [Legacy inputs](#legacy-inputs)). This runs *before* required-input checks, so a user who bumps to `@v1` without changing their workflow sees the migration message rather than a generic `Input required: email`.
+1. **Reject legacy inputs.** If any of `consumer-key`, `consumer-token`, `checksum-sha-1`, `checksum-sha-224` or `checksum-sha-384` is non-empty, first `core.setSecret` any non-empty `consumer-key` / `consumer-token`, then fail (see [Legacy inputs](#legacy-inputs)). This runs *before* required-input checks, so a user who bumps to `@v1` without changing their workflow sees the migration message rather than a generic `Input required: email`.
 2. **Read and validate inputs** (see [Local validation](#local-validation)).
 3. **Mask secrets.** `core.setSecret(password)`.
 4. **Log in.** `POST {backend}/login` with `{"email", "password"}`. On success, read `token` from the response body and immediately `core.setSecret(token)`.
@@ -52,16 +56,18 @@ The action logs in exactly once per run. The token is valid for 10 minutes (sdkm
 | `visible`          | no       | `true`                    | `true` / `false`                                                         |
 | `backend`          | no       | `https://state.sdkman.io` | Trailing `/` is stripped. `http://` is permitted (local testing)         |
 
+Inputs marked required are declared `required: true` in `action.yml`. `action.yml` declares no default for `visible`; the effective default is the server's (`true`). The table's Default column shows the effective value.
+
 ### Legacy inputs
 
-The following inputs remain declared in `action.yml`, marked `deprecationMessage`, so that GitHub does not silently discard them. If set, the action fails:
+The following inputs remain declared in `action.yml` (`required: false`, no default, `deprecationMessage` set), so that GitHub does not silently discard them. If set, the action fails:
 
 | Input                                                     | Failure message (summary)                                                                                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `consumer-key`, `consumer-token`                          | v1 publishes to sdkman-state and authenticates with `email` / `password`; link to the README migration section.             |
+| `consumer-key`, `consumer-token`                          | v1 publishes to sdkman-state and authenticates with `email` / `password`; link to `https://github.com/sdkman/sdkman-release-action#migrating-from-v0`. |
 | `checksum-sha-1`, `checksum-sha-224`, `checksum-sha-384`  | sdkman-state does not support `<algorithm>`; supported checksums are `checksum-md5`, `checksum-sha-256`, `checksum-sha-512`. |
 
-All offending inputs are reported in one message rather than one at a time. These declarations are removed in v2.
+All offending inputs are reported in one message rather than one at a time. The message names the inputs only, never their values. These declarations are removed in v2.
 
 ### Platforms
 
@@ -148,6 +154,8 @@ Success: `204 No Content`.
 
 Every non-success outcome fails the step via `core.setFailed`. Unhandled promise rejections must not be possible: the entry point awaits the run and catches everything.
 
+Success matches the sdkman-state contract exactly ([OpenAPI](https://state.sdkman.io/openapi/documentation.yaml)): `200` for `/login` and `204` for `/versions`. Any other status — including other `2xx` and `3xx` — is a failure.
+
 | Call       | Response                  | Message                                                                                                   |
 |------------|---------------------------|-----------------------------------------------------------------------------------------------------------|
 | `/login`   | `401`                     | Login failed: invalid email or password.                                                                  |
@@ -155,11 +163,13 @@ Every non-success outcome fails the step via `core.setFailed`. Unhandled promise
 | `/versions`| `400`                     | `Release rejected by sdkman-state:` followed by one line per entry in `failures[]`: `- <field>: <message>` |
 | `/versions`| `401`                     | Token rejected by sdkman-state (unexpected immediately after login).                                      |
 | `/versions`| `403`                     | Vendor `<email>` is not authorised to publish `<candidate>`.                                              |
-| either     | other `4xx`               | `<call> failed: HTTP <status>` plus the `message` field of the body, if present.                          |
+| either     | any other non-success status | `<call> failed: HTTP <status>` plus the `message` field of the body, if present.                          |
 | either     | `5xx` (after retries)     | `<call> failed: HTTP <status>` plus the `message` field of the body, if present.                          |
 | either     | network error (after retries) | `<call> failed: <error message>`                                                                      |
 
-Response bodies are parsed defensively: an empty or non-JSON body must not mask the status code. The token and password must never appear in any message.
+For a `/versions` `400`, if `failures[]` is absent or empty, append the body's `message` if present, else `HTTP 400 <raw body, truncated to 500 chars>`.
+
+Response bodies are parsed defensively: an empty or non-JSON body must not mask the status code. The password, token, `consumer-key` and `consumer-token` must never appear in any message.
 
 ### Retries
 
@@ -177,7 +187,7 @@ Retry delays are injectable so tests do not sleep.
 
 ### Structure
 
-- `src/index.js` — entry point: calls `run()` and ensures any thrown error ends in `core.setFailed`. This is the ncc entry (`package.json` `main` already names it).
+- `src/index.js` — entry point: calls `run()` and ensures any thrown error ends in `core.setFailed`. This becomes the ncc entry: `package.json` `scripts.package` changes to `npx ncc build src/index.js -o dist --source-map --license licenses.md`, and `CLAUDE.md`'s "ncc bundle of `src/main.js`" is updated to match.
 - `src/main.js` — `run({ core, fetch, sleep })`, orchestrating the steps above. Dependencies are passed in so tests can supply `@actions/core` stubs and control time.
 - Pure helpers (input parsing, payload building, error formatting, retry) in small modules under `src/`, each unit-tested.
 - Plain JavaScript (CommonJS) with JSDoc types and `// @ts-check`.
@@ -242,14 +252,15 @@ Against a local sdkman-state (`http://localhost:8080`), with an admin, a registe
 - Describe sdkman-state and the new prerequisites: a vendor account (email and password) issued by the SDKMAN! team, with the candidate registered and authorised for that account.
 - Replace the inputs table, platform list and examples; examples use `@v1` and secrets `SDKMAN_EMAIL` / `SDKMAN_PASSWORD`.
 - Explain `tags` (including `lts` for the default version and replace semantics) and `visible`.
-- Add a **Migrating from v0** section: credential change, platform mapping table, removed checksum algorithms, stricter `https://` URL requirement, and that the step now fails on any unsuccessful publish.
+- Add a section headed exactly `## Migrating from v0` (the anchor the legacy-input failure links to): credential change, platform mapping table, removed checksum algorithms, stricter `https://` URL requirement, that the step now fails on any unsuccessful publish, and that users not ready to migrate can pin `@v0`.
 
 `CLAUDE.md` is updated to reflect the new structure, test command and runtime.
 
 ## Release
 
 - Tag `v1.0.0` and create/move the floating `v1` tag to the same commit.
-- `v0.1.0` is left untouched for legacy users.
+- Existing v0.x tags (`v0.1.0`, latest `v0.2.0`) are left untouched for legacy users.
+- Create a floating `v0` tag at `v0.2.0` so legacy users have a stable major pin; the migration guide mentions it.
 
 ## Delivery
 
@@ -257,11 +268,10 @@ One pull request from `feature/cut-over-to-state-api`, as a sequence of atomic c
 
 1. This spec.
 2. Node 24 runtime, Jest + nock harness, `npm test`, `ci.yml`.
-3. Refactor into `index.js` / `main.js` with injected dependencies (behaviour unchanged, covered by tests).
-4. sdkman-state client: login, publish, retries, error handling.
-5. Inputs and `action.yml`: new inputs, legacy input rejection, local validation.
-6. README and migration guide; `CLAUDE.md`.
-7. Metadata (`package.json` URLs, license, version).
-8. Rebuilt `dist/`.
+3. Replace the legacy code with `index.js` / `main.js` (`run({ core, fetch, sleep })`) and the sdkman-state client — login, publish, retries, error handling — with tests; switch the ncc entry in `scripts.package` to `src/index.js`. The legacy code is not refactored first.
+4. Inputs and `action.yml`: new inputs, legacy input rejection, local validation.
+5. README and migration guide; `CLAUDE.md`.
+6. Metadata (`package.json` URLs, license, version).
+7. Rebuilt `dist/`; remove the `dist` line from `.gitignore` and stage with `git add -A dist` so new ncc output files are not dropped.
 
 `dist/` is rebuilt only in the final commit, so intermediate commits may fail `check-dist`; the PR as a whole must pass.
