@@ -6,7 +6,7 @@
   "scripts": {
     "bundle": "npm run format:write && npm run package",
     "format:write": "npx prettier --write .",
-    "package": "npx ncc build src/main.js -o dist --source-map --license licenses.md",
+    "package": "npx ncc build src/index.js -o dist --source-map --license licenses.md",
     "package:watch": "npm run package -- --watch",
     "test": "jest"
   },
@@ -19,9 +19,7 @@
     "url": "https://github.com/hamzaremmal/sdkman-release-action/issues/new"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1",
-    "axios": "^1.9.0"
+    "@actions/core": "^1.11.1"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.4",
