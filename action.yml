@@ -5,11 +5,11 @@ branding:
   icon: arrow-up-circle
   color: blue
 inputs:
-  consumer-key:
-    description: "SDKMAN! consumer key"
+  email:
+    description: "sdkman-state vendor account email"
     required: true
-  consumer-token:
-    description: "SDKMAN! consumer token"
+  password:
+    description: "sdkman-state vendor account password"
     required: true
   candidate:
     description: "Candidate name"
@@ -27,27 +27,42 @@ inputs:
   checksum-md5:
     description: "MD5 checksum"
     required: false
-  checksum-sha-1:
-    description: "SHA-1 checksum"
-    required: false
-  checksum-sha-224:
-    description: "SHA-224 checksum"
-    required: false
   checksum-sha-256:
     description: "SHA-256 checksum"
-    required: false
-  checksum-sha-384:
-    description: "SHA-384 checksum"
     required: false
   checksum-sha-512:
     description: "SHA-512 checksum"
     required: false
+  tags:
+    description: "Comma- and/or newline-separated list of tags"
+    required: false
+  visible:
+    description: "Whether the version is visible (true or false)"
+    required: false
   backend:
     description: "Backend URL"
     required: false
-    default: "https://vendors.sdkman.io"
-
-## TODO: ADD THE OUTPUTS ?
+    default: "https://state.sdkman.io"
+  consumer-key:
+    description: "Removed in v1; use email and password"
+    required: false
+    deprecationMessage: "consumer-key is not supported in v1. Use email and password instead."
+  consumer-token:
+    description: "Removed in v1; use email and password"
+    required: false
+    deprecationMessage: "consumer-token is not supported in v1. Use email and password instead."
+  checksum-sha-1:
+    description: "Removed in v1; sdkman-state does not support SHA-1"
+    required: false
+    deprecationMessage: "checksum-sha-1 is not supported in v1. Use checksum-md5, checksum-sha-256 or checksum-sha-512."
+  checksum-sha-224:
+    description: "Removed in v1; sdkman-state does not support SHA-224"
+    required: false
+    deprecationMessage: "checksum-sha-224 is not supported in v1. Use checksum-md5, checksum-sha-256 or checksum-sha-512."
+  checksum-sha-384:
+    description: "Removed in v1; sdkman-state does not support SHA-384"
+    required: false
+    deprecationMessage: "checksum-sha-384 is not supported in v1. Use checksum-md5, checksum-sha-256 or checksum-sha-512."
 
 runs:
   using: "node24"
