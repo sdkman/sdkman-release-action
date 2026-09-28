@@ -28,7 +28,7 @@ All statements about sdkman-state in this spec — endpoints, status codes, toke
 
 A single run performs the following steps in order. Any failure calls `core.setFailed` with a descriptive message and stops the run; no further requests are made.
 
-1. **Reject legacy inputs.** If any of `consumer-key`, `consumer-token`, `checksum-sha-1`, `checksum-sha-224` or `checksum-sha-384` is non-empty, first `core.setSecret` any non-empty `consumer-key` / `consumer-token`, then fail (see [Legacy inputs](#legacy-inputs)). This runs *before* required-input checks, so a user who bumps to `@v1` without changing their workflow sees the migration message rather than a generic `Input required: email`.
+1. **Reject legacy inputs.** If any of `consumer-key`, `consumer-token`, `checksum-sha-1`, `checksum-sha-224` or `checksum-sha-384` is non-empty, first `core.setSecret` any non-empty `consumer-key` / `consumer-token`, then fail (see [Legacy inputs](#legacy-inputs)). This runs _before_ required-input checks, so a user who bumps to `@v1` without changing their workflow sees the migration message rather than a generic `Input required: email`.
 2. **Read and validate inputs** (see [Local validation](#local-validation)).
 3. **Mask secrets.** `core.setSecret(password)`.
 4. **Log in.** `POST {backend}/login` with `{"email", "password"}`. On success, read `token` from the response body and immediately `core.setSecret(token)`.
@@ -42,7 +42,7 @@ The action logs in exactly once per run. The token is valid for 10 minutes (sdkm
 ## Inputs
 
 | Input              | Required | Default                   | Notes                                                                    |
-|--------------------|----------|---------------------------|--------------------------------------------------------------------------|
+| ------------------ | -------- | ------------------------- | ------------------------------------------------------------------------ |
 | `email`            | yes      |                           | sdkman-state vendor account email                                        |
 | `password`         | yes      |                           | sdkman-state vendor account password; masked in logs                     |
 | `candidate`        | yes      |                           | Must already be registered in sdkman-state and authorised for the vendor |
@@ -62,10 +62,10 @@ Inputs marked required are declared `required: true` in `action.yml`. `action.ym
 
 The following inputs remain declared in `action.yml` (`required: false`, no default, `deprecationMessage` set), so that GitHub does not silently discard them. If set, the action fails:
 
-| Input                                                     | Failure message (summary)                                                                                                   |
-|-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `consumer-key`, `consumer-token`                          | v1 publishes to sdkman-state and authenticates with `email` / `password`; link to `https://github.com/sdkman/sdkman-release-action#migrating-from-v0`. |
-| `checksum-sha-1`, `checksum-sha-224`, `checksum-sha-384`  | sdkman-state does not support `<algorithm>`; supported checksums are `checksum-md5`, `checksum-sha-256`, `checksum-sha-512`. |
+| Input                                                    | Failure message (summary)                                                                                                                              |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `consumer-key`, `consumer-token`                         | v1 publishes to sdkman-state and authenticates with `email` / `password`; link to `https://github.com/sdkman/sdkman-release-action#migrating-from-v0`. |
+| `checksum-sha-1`, `checksum-sha-224`, `checksum-sha-384` | sdkman-state does not support `<algorithm>`; supported checksums are `checksum-md5`, `checksum-sha-256`, `checksum-sha-512`.                           |
 
 All offending inputs are reported in one message rather than one at a time. The message names the inputs only, never their values. These declarations are removed in v2.
 
@@ -77,17 +77,17 @@ The action accepts sdkman-state's platform identifiers only, matched exactly (ca
 
 Legacy identifiers are not translated. The README documents the mapping:
 
-| v0 (legacy)   | v1 (sdkman-state)                      |
-|---------------|----------------------------------------|
-| `UNIVERSAL`   | `UNIVERSAL`                            |
-| `LINUX_64`    | `LINUX_X64`                            |
-| `LINUX_32`    | `LINUX_X32`                            |
-| `LINUX_ARM64` | `LINUX_ARM64`                          |
-| `LINUX_ARM32` | `LINUX_ARM32HF` or `LINUX_ARM32SF`     |
-| `MAC_OSX`     | `MAC_X64`                              |
-| `MAC_ARM64`   | `MAC_ARM64`                            |
-| `WINDOWS_64`  | `WINDOWS_X64`                          |
-| `WINDOWS_32`  | *(not supported)*                      |
+| v0 (legacy)   | v1 (sdkman-state)                  |
+| ------------- | ---------------------------------- |
+| `UNIVERSAL`   | `UNIVERSAL`                        |
+| `LINUX_64`    | `LINUX_X64`                        |
+| `LINUX_32`    | `LINUX_X32`                        |
+| `LINUX_ARM64` | `LINUX_ARM64`                      |
+| `LINUX_ARM32` | `LINUX_ARM32HF` or `LINUX_ARM32SF` |
+| `MAC_OSX`     | `MAC_X64`                          |
+| `MAC_ARM64`   | `MAC_ARM64`                        |
+| `WINDOWS_64`  | `WINDOWS_X64`                      |
+| `WINDOWS_32`  | _(not supported)_                  |
 
 ### Local validation
 
@@ -122,7 +122,7 @@ Content-Type: application/json
 ```
 
 | Input              | Request field | Rule                                                                        |
-|--------------------|---------------|-----------------------------------------------------------------------------|
+| ------------------ | ------------- | --------------------------------------------------------------------------- |
 | `candidate`        | `candidate`   | trimmed                                                                     |
 | `version`          | `version`     | trimmed                                                                     |
 | `platform`         | `platform`    | always sent                                                                 |
@@ -133,7 +133,7 @@ Content-Type: application/json
 | `tags`             | `tags`        | split on `,` and newlines, trimmed, empties dropped; **omitted** if no tags |
 | `visible`          | `visible`     | sent as `false` only when the input is `false`; otherwise omitted           |
 
-Omitting `tags` is essential: sending `tags` *replaces* the version's tag set, so an empty array would wipe tags that were assigned by other means. Omitting `visible` lets the server apply its default (`true`).
+Omitting `tags` is essential: sending `tags` _replaces_ the version's tag set, so an empty array would wipe tags that were assigned by other means. Omitting `visible` lets the server apply its default (`true`).
 
 Example:
 
@@ -156,16 +156,16 @@ Every non-success outcome fails the step via `core.setFailed`. Unhandled promise
 
 Success matches the sdkman-state contract exactly ([OpenAPI](https://state.sdkman.io/openapi/documentation.yaml)): `200` for `/login` and `204` for `/versions`. Any other status — including other `2xx` and `3xx` — is a failure.
 
-| Call       | Response                  | Message                                                                                                   |
-|------------|---------------------------|-----------------------------------------------------------------------------------------------------------|
-| `/login`   | `401`                     | Login failed: invalid email or password.                                                                  |
-| `/login`   | `429` (after retries)     | Login rate limited by sdkman-state; try again later.                                                      |
-| `/versions`| `400`                     | `Release rejected by sdkman-state:` followed by one line per entry in `failures[]`: `- <field>: <message>` |
-| `/versions`| `401`                     | Token rejected by sdkman-state (unexpected immediately after login).                                      |
-| `/versions`| `403`                     | Vendor `<email>` is not authorised to publish `<candidate>`.                                              |
-| either     | any other non-success status | `<call> failed: HTTP <status>` plus the `message` field of the body, if present.                          |
-| either     | `5xx` (after retries)     | `<call> failed: HTTP <status>` plus the `message` field of the body, if present.                          |
-| either     | network error (after retries) | `<call> failed: <error message>`                                                                      |
+| Call        | Response                      | Message                                                                                                    |
+| ----------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/login`    | `401`                         | Login failed: invalid email or password.                                                                   |
+| `/login`    | `429` (after retries)         | Login rate limited by sdkman-state; try again later.                                                       |
+| `/versions` | `400`                         | `Release rejected by sdkman-state:` followed by one line per entry in `failures[]`: `- <field>: <message>` |
+| `/versions` | `401`                         | Token rejected by sdkman-state (unexpected immediately after login).                                       |
+| `/versions` | `403`                         | Vendor `<email>` is not authorised to publish `<candidate>`.                                               |
+| either      | any other non-success status  | `<call> failed: HTTP <status>` plus the `message` field of the body, if present.                           |
+| either      | `5xx` (after retries)         | `<call> failed: HTTP <status>` plus the `message` field of the body, if present.                           |
+| either      | network error (after retries) | `<call> failed: <error message>`                                                                           |
 
 For a `/versions` `400`, if `failures[]` is absent or empty, append the body's `message` if present, else `HTTP 400 <raw body, truncated to 500 chars>`.
 
