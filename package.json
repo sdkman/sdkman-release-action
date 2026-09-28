@@ -7,7 +7,8 @@
     "bundle": "npm run format:write && npm run package",
     "format:write": "npx prettier --write .",
     "package": "npx ncc build src/main.js -o dist --source-map --license licenses.md",
-    "package:watch": "npm run package -- --watch"
+    "package:watch": "npm run package -- --watch",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Hamza Remmal <hamza@remmal.net> (https://remmal.net)",
@@ -23,12 +24,23 @@
     "axios": "^1.9.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.4"
+    "@vercel/ncc": "^0.38.4",
+    "jest": "^30.5.2",
+    "nock": "^14.0.17"
   },
   "exports": {
     ".": "./dist/index.js"
   },
   "engines": {
     "node": ">=24"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/__tests__/setup.js"
+    ]
   }
 }
