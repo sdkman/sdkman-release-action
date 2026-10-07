@@ -1,0 +1,12 @@
+name: Workflow Failure Alert
+
+on:
+  workflow_run:
+    workflows: ["*"]
+    branches: [master, main]
+    types: [completed]
+
+jobs:
+  notify:
+    uses: sdkman/.github/.github/workflows/reusable-workflow-failure-alert.yml@main
+    secrets: inherit
