@@ -79,7 +79,7 @@ describe("run", () => {
         platform: "LINUX_X64",
         url: "https://example.test/gradle-9.1.0-bin.zip",
         sha256sum: "abc123",
-        tags: ["lts", "9.x"],
+        tags: ["stable", "9.x"],
         visible: false,
       })
       .reply(204);
@@ -89,7 +89,7 @@ describe("run", () => {
         ...VALID_INPUTS,
         platform: "LINUX_X64",
         "checksum-sha-256": "abc123",
-        tags: "lts, 9.x",
+        tags: "stable, 9.x",
         visible: "FALSE",
       }),
     );
