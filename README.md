@@ -55,7 +55,7 @@ Publishing is an upsert on candidate, version and platform: re-running a job for
 | `checksum-md5`     | no       |                           | Hex, 32 chars                                                            |
 | `checksum-sha-256` | no       |                           | Hex, 64 chars                                                            |
 | `checksum-sha-512` | no       |                           | Hex, 128 chars                                                           |
-| `tags`             | no       |                           | Comma- and/or newline-separated list, e.g. `lts` or `latest, 3.x`        |
+| `tags`             | no       |                           | Comma- and/or newline-separated list, e.g. `stable` or `latest, 3.x`     |
 | `visible`          | no       | `true`                    | `true` / `false`                                                         |
 | `backend`          | no       | `https://state.sdkman.io` | Trailing `/` is stripped. `http://` is permitted (local testing)         |
 
@@ -79,7 +79,9 @@ The v0 identifiers are not translated. See the [platform mapping](#migrating-fro
 
 `tags` assigns tags to the version. Separate tags with commas, newlines or both. Surrounding whitespace and empty entries are ignored.
 
-- The `lts` tag makes the version the candidate's default version.
+- The `stable` tag makes the version the candidate's default version.
+- The `latest` tag marks the candidate's newest, bleeding-edge release. Every candidate should tag each new release `latest`, including pre-releases and release candidates, so users can always find the newest version.
+- A release that is both the newest and the default gets both tags: `stable, latest`. A pre-release gets `latest` only, so the default stays on the last stable release.
 - Sending tags **replaces** the version's whole tag set. When `tags` is empty or not set, the action sends no tags, so tags assigned by other means stay in place.
 
 `visible` controls whether users can see the version. Set it to `false` to publish a hidden version. When `visible` is not set, sdkman-state applies its default (`true`).
@@ -140,8 +142,25 @@ The v0 identifiers are not translated. See the [platform mapping](#migrating-fro
     version: ${{ github.event.release.tag_name }}
     url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
     tags: |
-      lts
+      stable
       latest
+```
+
+### Pre-release
+
+A pre-release is tagged `latest` but not `stable`, so it is the newest version without becoming the default.
+
+```yaml
+- name: Release pre-release to SDKMAN!
+  if: github.event.release.prerelease
+  uses: sdkman/sdkman-release-action@v1
+  with:
+    email: ${{ secrets.SDKMAN_EMAIL }}
+    password: ${{ secrets.SDKMAN_PASSWORD }}
+    candidate: my-tool
+    version: ${{ github.event.release.tag_name }}
+    url: https://github.com/myorg/my-tool/releases/download/${{ github.event.release.tag_name }}/my-tool-${{ github.event.release.tag_name }}.zip
+    tags: latest
 ```
 
 ## Migrating from v0
