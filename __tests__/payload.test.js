@@ -29,19 +29,23 @@ describe("parseTags", () => {
   });
 
   it("splits on a mix of commas and newlines", () => {
-    expect(parseTags("lts, latest\n3.x")).toEqual(["lts", "latest", "3.x"]);
+    expect(parseTags("stable, latest\n3.x")).toEqual([
+      "stable",
+      "latest",
+      "3.x",
+    ]);
   });
 
   it("trims whitespace around each tag", () => {
-    expect(parseTags("  lts ,\t latest  \r\n  3.x ")).toEqual([
-      "lts",
+    expect(parseTags("  stable ,\t latest  \r\n  3.x ")).toEqual([
+      "stable",
       "latest",
       "3.x",
     ]);
   });
 
   it("drops empty entries", () => {
-    expect(parseTags(",lts,, ,\n\n latest ,")).toEqual(["lts", "latest"]);
+    expect(parseTags(",stable,, ,\n\n latest ,")).toEqual(["stable", "latest"]);
   });
 
   it("returns no tags for an empty or blank value", () => {
@@ -114,8 +118,8 @@ describe("buildPayload", () => {
   });
 
   it("sends parsed tags", () => {
-    expect(buildPayload(inputs({ tags: "lts, latest\n3.x" })).tags).toEqual([
-      "lts",
+    expect(buildPayload(inputs({ tags: "stable, latest\n3.x" })).tags).toEqual([
+      "stable",
       "latest",
       "3.x",
     ]);

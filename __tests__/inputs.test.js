@@ -129,7 +129,7 @@ describe("readInputs", () => {
       "checksum-md5": "md5",
       "checksum-sha-256": "sha256",
       "checksum-sha-512": "sha512",
-      tags: "lts, 3.x",
+      tags: "stable, 3.x",
       visible: "false",
       backend: "http://localhost:8080",
     };
