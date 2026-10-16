@@ -1,0 +1,13 @@
+name: smoke-test-release-action
+on: workflow_dispatch
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sdkman/sdkman-release-action@v1
+        with:
+          email: not-a-real@example.com
+          password: wrong
+          candidate: smoketest
+          version: 0.0.0
+          url: https://example.com/smoketest-0.0.0.zip
