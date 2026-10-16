@@ -1,5 +1,5 @@
 name: smoke-test-release-action
-on: workflow_dispatch
+on: push
 jobs:
   smoke:
     runs-on: ubuntu-latest
