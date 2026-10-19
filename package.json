@@ -19,7 +19,7 @@
     "url": "https://github.com/sdkman/sdkman-release-action/issues/new"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1"
+    "@actions/core": "^3.0.1"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.4",
