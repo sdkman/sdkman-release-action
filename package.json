@@ -24,7 +24,7 @@
   "devDependencies": {
     "@vercel/ncc": "^0.38.4",
     "jest": "^30.5.2",
-    "nock": "^14.0.17"
+    "nock": "^15.0.5"
   },
   "exports": {
     ".": "./dist/index.js"
